@@ -1,6 +1,5 @@
 # Reference: https://hackernoon.com/using-google-street-view-photos-as-wallpapers-a-how-to-guide-g11b3yc1
-#            https://tecadmin.net/setup-selenium-chromedriver-on-ubuntu/
-#            
+
 
 # Python Imports
 import time
@@ -10,17 +9,19 @@ import os
 
 
 class GoogleStreetViewImages:
-    def __init__(self, imgHeight, imgWidth):
+    def __init__(self, imgHeight, imgWidth, path_to_firefox_webdriver):
         """
         INPUTS:
             imgHeight(int)  :Height of the image generated from GSV
             imgWidth(int)   :Width  of the image generated from GSV
+            path_to_firefox_webdriver(str): Path to the geckodriver for firefox
             
         """
-        
+
         # Google API
         self.__META_URL = "https://maps.googleapis.com/maps/api/streetview/metadata"
         self.__API_KEY = self.__get_apikey()
+        self.__WEBDRIVERPATH = path_to_firefox_webdriver
         
         # Setting HTML File path
         html_filepath = os.path.join(os.path.dirname(__file__), "clean_street_view.html")
@@ -28,7 +29,7 @@ class GoogleStreetViewImages:
         self.__HTML_PATH = 'file://{}?'.format(html_filepath)
 
         # Output Image folder path
-        self.OUT_FOLDER_PATH = os.path.join(os.path.dirname(__file__), "generated_images/")
+        self.OUT_FOLDER_PATH = os.path.join(os.getcwd(), "generated_images/")
         # Create the folder if it does not exits
         if not os.path.exists(self.OUT_FOLDER_PATH):
             print("[GSV] Creating output folder ...", end=" ")
@@ -36,7 +37,7 @@ class GoogleStreetViewImages:
             print("Done!")
         
         # Set the Selenium driver
-        #self.__set_webdriver(imgHeight, imgWidth)
+        self.__set_webdriver(imgHeight, imgWidth)
 
     #######################
     ## Utility functions ##
@@ -56,11 +57,11 @@ class GoogleStreetViewImages:
     def __set_webdriver(self, height, width):
         print("[GSV] Setting up the webdriver ...", end=" ")
         # Selenium Driver Setup
-        options = webdriver.chrome.options.Options()
+        options = webdriver.firefox.options.Options()
         options.add_argument("--log-level=3")  # minimal logging
         options.add_argument("--window-size=" + str(width) + "," + str(height))
         options.add_argument("--headless")
-        self.__DRIVER = webdriver.Chrome(executable_path = "/usr/bin/chromedriver", options=options)
+        self.__DRIVER = webdriver.Firefox(executable_path = self.__WEBDRIVERPATH, options=options)
         print("Done!")
 
     ###################################
